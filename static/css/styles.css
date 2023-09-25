@@ -1,0 +1,35 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1e2a38; /* Fundo azul escuro */
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Para cobrir toda a altura da tela */
+}
+
+header {
+    background-color: #333;
+    text-align: center;
+    padding: 20px;
+}
+
+main {
+    text-align: center;
+    max-width: 800px;
+    max-height: 100px;
+    margin: auto; /* Centralizar horizontalmente */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #333; /* Cor do texto no interior do main */
+    flex-grow: 1; /* Para expandir e preencher o espaço restante verticalmente */
+}
+
+footer {
+    text-align: right;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}
