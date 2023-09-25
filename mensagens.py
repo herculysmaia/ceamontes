@@ -66,7 +66,7 @@ class Mensagens:
             'dias para o ano acabar.'
         )
 
-        return {'menssagem': texto_mensagem}
+        return {'mensagem': texto_mensagem}
 
     @staticmethod
     def mensagem_tarde():
@@ -88,10 +88,3 @@ class Mensagens:
         )
 
         return {'mensagem': texto_mensagem}
-
-
-gerenciador_mensagens = Mensagens()
-
-if __name__ == '__main__':
-    texto = gerenciador_mensagens.mensagem_manha()
-    print(texto)
