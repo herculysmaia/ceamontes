@@ -1,89 +1,8 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 
 import requests
 import json
 import os
-
-lat = -16.715767
-lon = -43.863275
-
-key = os.getenv("API_KEY")
-
-url = f'https://api.weatherapi.com/v1/forecast.json?key={key}&q={lat},{lon}&lang=pt&days=2&aqi=no&alerts=yes'
-
-response = requests.get(url)
-
-fase_em_pt = {
-    "New Moon": "nova",
-    "Waxing Crescent": "crescente côncavo",
-    "First Quarter": "primeiro quarto",
-    "Waxing Gibbous": "crescente convexo",
-    "Full Moon": "cheia",
-    "Waning Gibbous": "minguante convexo",
-    "Last Quarter": "último quarto",
-    "Waning Crescent": "minguante côncavo"
-}
-
-fase_em_emojis = {
-    "New Moon": "🌑",
-    "Waxing Crescent": "🌘",
-    "First Quarter": "🌗",
-    "Waxing Gibbous": "🌖",
-    "Full Moon": "🌕",
-    "Waning Gibbous": "🌔",
-    "Last Quarter": "🌓",
-    "Waning Crescent": "🌒"
-}
-
-emoji = {
-    1000: "☀️",
-    1003: "⛅",
-    1006: "☁️",
-    1009: "☁️",
-    1030: "🌫️",
-    1063: "🌦️",
-    1066: "🌨️",
-    1069: "🌨️❄️",
-    1072: "🌧️❄️",
-    1087: "⛈️",
-    1114: "🌬️🌨️",
-    1117: "❄️🌬️",
-    1135: "🌁",
-    1147: "🌁❄️",
-    1150: "🌦️🌧️",
-    1153: "🌧️",
-    1168: "🌧️❄️",
-    1171: "🌧️❄️",
-    1180: "🌦️🌧️",
-    1183: "🌧️",
-    1186: "🌧️",
-    1189: "🌧️",
-    1192: "🌧️☔",
-    1195: "🌧️☔",
-    1198: "🌧️❄️",
-    1201: "🌧️❄️",
-    1204: "🌨️❄️",
-    1207: "🌨️❄️",
-    1210: "🌨️",
-    1213: "🌨️❄️",
-    1216: "🌨️❄️",
-    1219: "🌨️❄️",
-    1222: "🌨️❄️",
-    1225: "🌨️❄️",
-    1237: "🌧️❄️",
-    1240: "🌧️☔",
-    1243: "🌧️☔",
-    1246: "🌧️☔",
-    1249: "🌨️❄️",
-    1252: "🌨️❄️",
-    1255: "🌨️❄️",
-    1258: "🌨️❄️",
-    1261: "🌧️❄️",
-    1264: "🌧️❄️",
-    1273: "🌩️🌧️",
-    1276: "🌩️🌧️",
-    1282: "🌩️🌨️❄️"
-}
 
 
 def abrir_dados():
@@ -127,7 +46,7 @@ def abrir_dados():
 
 
 def obter_chance_de_chuva():
-    agora = dt.now().timestamp()
+    agora = (dt.now() + timedelta(minutes=15)).timestamp()
     milimitros_acumulados = 0
     inicio_hora_da_chuva = 2000000000
     maximo_hora_da_chuva = 0
@@ -285,7 +204,88 @@ def visibilidade_atual():
     return text
 
 
+lat = -16.715767
+lon = -43.863275
+
+key = os.getenv("API_KEY")
+
+url = f'https://api.weatherapi.com/v1/forecast.json?key={key}&q={lat},{lon}&lang=pt&days=2&aqi=no&alerts=yes'
+
+response = requests.get(url)
+
 if response.status_code == 200:
     data = response.json()
 else:
     data = abrir_dados()
+
+fase_em_pt = {
+    "New Moon": "nova",
+    "Waxing Crescent": "crescente côncavo",
+    "First Quarter": "primeiro quarto",
+    "Waxing Gibbous": "crescente convexo",
+    "Full Moon": "cheia",
+    "Waning Gibbous": "minguante convexo",
+    "Last Quarter": "último quarto",
+    "Waning Crescent": "minguante côncavo"
+}
+
+fase_em_emojis = {
+    "New Moon": "🌑",
+    "Waxing Crescent": "🌘",
+    "First Quarter": "🌗",
+    "Waxing Gibbous": "🌖",
+    "Full Moon": "🌕",
+    "Waning Gibbous": "🌔",
+    "Last Quarter": "🌓",
+    "Waning Crescent": "🌒"
+}
+
+emoji = {
+    1000: "☀️",
+    1003: "⛅",
+    1006: "☁️",
+    1009: "☁️",
+    1030: "🌫️",
+    1063: "🌦️",
+    1066: "🌨️",
+    1069: "🌨️❄️",
+    1072: "🌧️❄️",
+    1087: "⛈️",
+    1114: "🌬️🌨️",
+    1117: "❄️🌬️",
+    1135: "🌁",
+    1147: "🌁❄️",
+    1150: "🌦️🌧️",
+    1153: "🌧️",
+    1168: "🌧️❄️",
+    1171: "🌧️❄️",
+    1180: "🌦️🌧️",
+    1183: "🌧️",
+    1186: "🌧️",
+    1189: "🌧️",
+    1192: "🌧️☔",
+    1195: "🌧️☔",
+    1198: "🌧️❄️",
+    1201: "🌧️❄️",
+    1204: "🌨️❄️",
+    1207: "🌨️❄️",
+    1210: "🌨️",
+    1213: "🌨️❄️",
+    1216: "🌨️❄️",
+    1219: "🌨️❄️",
+    1222: "🌨️❄️",
+    1225: "🌨️❄️",
+    1237: "🌧️❄️",
+    1240: "🌧️☔",
+    1243: "🌧️☔",
+    1246: "🌧️☔",
+    1249: "🌨️❄️",
+    1252: "🌨️❄️",
+    1255: "🌨️❄️",
+    1258: "🌨️❄️",
+    1261: "🌧️❄️",
+    1264: "🌧️❄️",
+    1273: "🌩️🌧️",
+    1276: "🌩️🌧️",
+    1282: "🌩️🌨️❄️"
+}

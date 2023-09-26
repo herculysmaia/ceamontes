@@ -7,7 +7,7 @@ EPH = api.load('de421.bsp')
 deslocamento_brasilia = timedelta(hours=-3)
 TZ = timezone(deslocamento_brasilia)
 
-agora = dt.now()
+agora = dt.now() + timedelta(minutes=15)
 HOJE = agora.replace(tzinfo=TZ)
 
 
