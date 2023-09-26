@@ -62,8 +62,8 @@ class Mensagens:
             f'O Sol acaba de nascer e está fazendo {temperatura}°C com a condição do clima de {condicao}. A umidade '
             f'relativa do ar é de {umidade}%, {chance_de_chuva}. A cobertura de nuvens está em {visibilidade}% e a '
             f'temperatura máxima prevista para hoje é de {temperatura_maxima}°C.\n\n' 
-            f'{estacao} e teremos {horas_de_sol} de luz solar hoje.\n\n Faltam {proxima_estacao} e {dias_final_do_ano} '
-            'dias para o ano acabar.'
+            f'{estacao} e teremos {horas_de_sol} de luz solar disponível.\n\n'
+            f'Faltam {proxima_estacao} e {dias_final_do_ano} dias para o ano acabar.'
         )
 
         return {'mensagem': texto_mensagem}
@@ -88,3 +88,6 @@ class Mensagens:
         )
 
         return {'mensagem': texto_mensagem}
+
+
+gerenciador_mensagens = Mensagens()
