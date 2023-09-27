@@ -95,61 +95,6 @@ def obter_chance_de_chuva():
     return text
 
 
-def calcular_duracao_noite():
-    hora_nascer_sol_unix = data['forecast']['forecastday'][1]['astro']['sunrise']
-    hora_por_sol_unix = data['forecast']['forecastday'][0]['astro']['sunset']
-
-    hora_nascer_lua_unix = data['forecast']['forecastday'][0]['astro']['moonrise']
-    hora_por_lua_unix = data['forecast']['forecastday'][0]['astro']['moonset']
-
-    if hora_nascer_lua_unix == 'No moonrise':
-        nascer_da_lua = dt.strptime(hora_nascer_sol_unix, "%I:%M %p").replace(hour=0, minute=0, second=0)
-    else:
-        nascer_da_lua = dt.strptime(hora_nascer_lua_unix, "%I:%M %p")
-
-    if hora_por_lua_unix == 'No moonset':
-        por_da_lua = dt.strptime(hora_nascer_sol_unix, "%I:%M %p").replace(hour=0, minute=0, second=0)
-    else:
-        por_da_lua = dt.strptime(hora_por_lua_unix, "%I:%M %p")
-
-    nascer_do_sol = dt.strptime(hora_nascer_sol_unix, "%I:%M %p")
-    por_do_sol = dt.strptime(hora_por_sol_unix, "%I:%M %p")
-
-    duracao_noite = nascer_do_sol - por_do_sol
-
-    horas_noite = int(duracao_noite.seconds / 3600)
-    minutos_noite = int((duracao_noite.seconds - horas_noite * 3600) / 60)
-
-    nasce_lua = f'{nascer_da_lua.hour:02d}:{nascer_da_lua.minute:02d}'
-    por_lua = f'{por_da_lua.hour:02d}:{por_da_lua.minute:02d}'
-
-    fase = fase_em_pt[data['forecast']['forecastday'][0]['astro']['moon_phase']]
-    emoji_texto = fase_em_emojis[data['forecast']['forecastday'][0]['astro']['moon_phase']]
-    iluminada = data['forecast']['forecastday'][0]['astro']['moon_illumination']
-
-    resposta = (f'{horas_noite} horas e {minutos_noite} minutos, com a Lua na fase {fase} {emoji_texto} ({iluminada}% '
-                f'iluminada), surgindo às {nasce_lua} e recolhendo-se às {por_lua}')
-
-    return resposta
-
-
-def calcular_duracao_dia():
-    hora_nascer_sol_unix = data['forecast']['forecastday'][0]['astro']['sunrise']
-    hora_por_sol_unix = data['forecast']['forecastday'][0]['astro']['sunset']
-
-    nascer_do_sol = dt.strptime(hora_nascer_sol_unix, "%I:%M %p")
-    por_do_sol = dt.strptime(hora_por_sol_unix, "%I:%M %p")
-
-    duracao_noite = por_do_sol - nascer_do_sol
-
-    horas_noite = int(duracao_noite.seconds / 3600)
-    minutos_noite = int((duracao_noite.seconds - horas_noite * 3600) / 60)
-
-    resposta = f'{horas_noite} horas e {minutos_noite} minutos'
-
-    return resposta
-
-
 def condicao_noite():
     hora_da_previsao = 20
 
@@ -209,6 +154,10 @@ lon = -43.863275
 
 key = os.getenv("API_KEY")
 
+if key is None:
+    with open('key.txt', 'r') as arq:
+        key = arq.read()
+
 url = f'https://api.weatherapi.com/v1/forecast.json?key={key}&q={lat},{lon}&lang=pt&days=2&aqi=no&alerts=yes'
 
 response = requests.get(url)
@@ -217,28 +166,6 @@ if response.status_code == 200:
     data = response.json()
 else:
     data = abrir_dados()
-
-fase_em_pt = {
-    "New Moon": "nova",
-    "Waxing Crescent": "crescente côncavo",
-    "First Quarter": "primeiro quarto",
-    "Waxing Gibbous": "crescente convexo",
-    "Full Moon": "cheia",
-    "Waning Gibbous": "minguante convexo",
-    "Last Quarter": "último quarto",
-    "Waning Crescent": "minguante côncavo"
-}
-
-fase_em_emojis = {
-    "New Moon": "🌑",
-    "Waxing Crescent": "🌘",
-    "First Quarter": "🌗",
-    "Waxing Gibbous": "🌖",
-    "Full Moon": "🌕",
-    "Waning Gibbous": "🌔",
-    "Last Quarter": "🌓",
-    "Waning Crescent": "🌒"
-}
 
 emoji = {
     1000: "☀️",

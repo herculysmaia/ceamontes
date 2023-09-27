@@ -5,6 +5,7 @@ import efemerides
 class Astro:
     calendario = efemerides.Calendario()
     estacoes = efemerides.Estacoes()
+    evento = efemerides.Evento()
 
     dia_de_hoje = calendario.dia_de_hoje()
 
@@ -17,6 +18,9 @@ class Astro:
     proxima_estacao = estacoes.obter_proxima_estacao()
     estacao_atual = estacoes.obter_estacao_atual()
 
+    duracao_do_dia = evento.obter_duracao_do_dia()
+    duracao_da_noite = evento.obter_duracao_da_noite()
+
 
 class Clima:
     condicao_noite = clima.condicao_noite()
@@ -24,8 +28,6 @@ class Clima:
     temperatura_minima = clima.temperatura_minima()
     temperatura_maxima = clima.temperatura_maxima()
     temperatura = clima.temperatura_atual()
-    duracao_do_dia = clima.calcular_duracao_dia()
-    duracao_da_noite = clima.calcular_duracao_noite()
     umidade = clima.umidade_atual()
     chance_de_chuva = clima.obter_chance_de_chuva()
     visibilidade = clima.visibilidade_atual()
@@ -54,7 +56,7 @@ class Mensagens:
         proxima_estacao = astronomia.proxima_estacao
         dias_final_do_ano = astronomia.dias_final_de_ano
 
-        horas_de_sol = clima_atual.duracao_do_dia
+        horas_de_sol = astronomia.duracao_do_dia
 
         texto_mensagem = (
             '🌄 * Bom dia! *\n\n'
@@ -71,11 +73,12 @@ class Mensagens:
     @staticmethod
     def mensagem_tarde():
         clima_atual = Clima()
+        astronomia = Astro()
 
         condicao_clima = clima_atual.condicao_noite
         temperatura_minima = clima_atual.temperatura_minima
 
-        hora_duracao_noite = clima_atual.duracao_da_noite
+        hora_duracao_noite = astronomia.duracao_da_noite
 
         fenomenos = 'Lista de eventos em constução'
 
