@@ -24,5 +24,12 @@ def mensagem_tarde():
     return jsonify(mensagem)
 
 
+@app.route('/lista')
+def lista_de_eventos():
+    mensagem = gerenciador_mensagens.lista_de_eventos()
+
+    return jsonify(mensagem)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

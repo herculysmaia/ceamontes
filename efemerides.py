@@ -2,6 +2,8 @@ from skyfield import api, almanac
 from datetime import datetime as dt, timedelta
 
 from skyfield.framelib import ecliptic_frame
+from skyfield.magnitudelib import planetary_magnitude
+from skyfield.starlib import Star
 
 TS = api.load.timescale()
 EPH = api.load('de421.bsp')
@@ -59,7 +61,13 @@ class Calendario:
 
 class Evento(Calendario):
 
-    montes_claros = api.wgs84.latlon(16.715767 * api.S, 43.863275 * api.W)
+    montes_claros = api.Topos(latitude_degrees=-16.715767, longitude_degrees=-43.863275)
+
+    planetas = [{'nome': 'Mercúrio', 'dados': EPH['mercury barycenter']},
+                {'nome': 'Vênus', 'dados': EPH['venus barycenter']},
+                {'nome': 'Marte', 'dados': EPH['mars barycenter']},
+                {'nome': 'Júpiter', 'dados': EPH['jupiter barycenter']},
+                {'nome': 'Saturno', 'dados': EPH['saturn barycenter']}]
 
     def __init__(self):
         super().__init__()
@@ -100,6 +108,81 @@ class Evento(Calendario):
             texto_fase = '🌑'
 
         return texto_fase, int(iluminada)
+
+    def _obter_horario_de_sirius(self):
+        sirius = Star(ra_hours=(6, 45, 8.9173), dec_degrees=(-16, 42, 58))
+
+        amanha = HOJE + timedelta(days=1)
+
+        f = almanac.meridian_transits(EPH, sirius, self.montes_claros)
+
+        t, e = self._calcular_ponto(TS.utc(HOJE), TS.utc(amanha), f)
+
+        horario = (t[e == 1][0] - timedelta(hours=3)).utc_datetime()
+
+        text = (f'A próxima passagem da estrela Sírius pelo zênite será às '
+                f'{horario.hour:02d}:{horario.minute:02d}')
+
+        return text
+
+    def _obter_nascer_e_por(self, t0, t1, func, planeta):
+        resultado, evento = self._calcular_ponto(t0, t1, func)
+
+        hora_datetime = resultado.utc_datetime()[0] - timedelta(hours=3)
+
+        localizacao = EPH['earth'] + self.montes_claros
+        hora_da_observacao = resultado[0]
+
+        telescopio = localizacao.at(hora_da_observacao).observe(planeta['dados'])
+
+        _, az, _ = telescopio.apparent().altaz()
+        magnitude = planetary_magnitude(telescopio)
+
+        return planeta['nome'], hora_datetime, evento[0], az.degrees, magnitude
+
+    def obter_lista_de_eventos(self):
+        depois = HOJE + timedelta(hours=12)
+
+        t0 = TS.from_datetime(HOJE)
+        t1 = TS.from_datetime(depois)
+
+        f_sol = almanac.sunrise_sunset(EPH, self.montes_claros)
+
+        resultado_sol, evento_sol = self._calcular_ponto(t0, t1, f_sol)
+
+        hora_limite_inferior = resultado_sol[evento_sol == 0][0]
+        hora_limite_superior = hora_limite_inferior + timedelta(days=2)
+        hora_limite_superior_planetas = hora_limite_inferior + timedelta(hours=12)
+
+        resultado = '*Lista de planetas vísiveis*\n(Acima de 10°)\n\n'
+
+        sequencia = []
+        for planeta in self.planetas:
+            f = almanac.risings_and_settings(EPH, planeta['dados'], self.montes_claros, horizon_degrees=10)
+            sequencia.append(self._obter_nascer_e_por(hora_limite_inferior, hora_limite_superior_planetas, f, planeta))
+
+        sequencia_ordenada = sorted(sequencia, key=lambda x: x[1])
+
+        for item in sequencia_ordenada:
+
+            hora = f'{item[1].hour:02d}:{item[1].minute:02d}'
+
+            direcao = int(item[3])
+
+            situacao = item[2]
+            if situacao == 1:
+                situacao_txt = f'🔺 Depois dàs {hora}\n🧭 {direcao}°, 🌟 {item[4]:.1f}'
+            else:
+                situacao_txt = f'🔻 Até às {hora}\n🧭 {direcao}°, 🌟 {item[4]:.1f}'
+
+            text = f'*{item[0]}*\n{situacao_txt}\n\n'
+            resultado += text
+
+        hora_de_sirus = self._obter_horario_de_sirius()
+
+        resultado += hora_de_sirus
+
+        return resultado
 
     def obter_duracao_do_dia(self):
         meia_noite = HOJE.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -213,3 +296,7 @@ class Estacoes:
         proxima_estacao = self.estacoes[y + 1]
 
         return f'{dias} dias para {preposicao} {proxima_estacao}'
+
+
+if __name__ == '__main__':
+    Evento().obter_lista_de_eventos()

@@ -83,12 +83,19 @@ class Mensagens:
         fenomenos = 'Lista de eventos em constução'
 
         texto_mensagem = (
-            '📸 O Sol irá se pôr em aproximadamente meia hora, uma oportunidade perfeita para capturar aquela foto de '
+            '📸 O Sol irá se pôr em aproximadamente meia hora, uma oportunidade perfeita para captar aquela foto de '
             'fim de tarde. Vai deixar essa chance passar? Não se preocupe! Confira a lista de eventos astronômicos '
             f'programados para as próximas horas. Fique atento! A noite promete durar {hora_duracao_noite}. A previsão '
             f'meteorológica para as 20h aponta para {condicao_clima}. A temperatura mínima esperada é de '
-            f'{temperatura_minima}°C.\n\n{fenomenos}'
+            f'{temperatura_minima}°C.'
         )
+
+        return {'mensagem': texto_mensagem}
+
+    @staticmethod
+    def lista_de_eventos():
+        astronomia = efemerides.Evento()
+        texto_mensagem = astronomia.obter_lista_de_eventos()
 
         return {'mensagem': texto_mensagem}
 

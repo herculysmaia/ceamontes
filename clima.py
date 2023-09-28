@@ -54,9 +54,10 @@ def obter_chance_de_chuva():
 
     lista_dado = data['forecast']['forecastday'][0]['hour']
     text = 'sem previsão de chuva'
+
     for info in lista_dado:
         if info['precip_mm'] != 0:
-            hora_da_chuva = info['date_epoch']
+            hora_da_chuva = info['time_epoch']
             milimetros = info['precip_mm']
 
             if hora_da_chuva < inicio_hora_da_chuva:
@@ -73,24 +74,27 @@ def obter_chance_de_chuva():
             if hora_da_chuva > fim_hora_da_chuva:
                 fim_hora_da_chuva = hora_da_chuva
 
-            str_hora_inicio = dt.fromtimestamp(inicio_hora_da_chuva).strftime('%H:%M')
-            str_hora_maxima = dt.fromtimestamp(maximo_hora_da_chuva).strftime('%H:%M')
-            str_hora_fim = dt.fromtimestamp(fim_hora_da_chuva).strftime('%H:%M')
+            str_hora_inicio = dt.fromtimestamp(inicio_hora_da_chuva).strftime('%H')
+            str_hora_maxima = dt.fromtimestamp(maximo_hora_da_chuva).strftime('%H')
+            str_hora_fim = dt.fromtimestamp(fim_hora_da_chuva).strftime('%H')
 
-            if inicio_hora_da_chuva < agora < maximo_hora_da_chuva:
-                text = (f'com a chuva prevista que começou às {str_hora_inicio}, tendo a maior intensidade às '
-                        f'{str_hora_maxima} com {milimitros_acumulados} mm e fim previsto para às {str_hora_fim}')
-
-            elif agora < fim_hora_da_chuva:
-                text = (f'com a chuva prevista que começou às {str_hora_inicio}, tendo a maior intensidade acontecido '
-                        f'às {str_hora_maxima} com {milimitros_acumulados} mm e fim previsto para às {str_hora_fim}')
-
-            elif agora >= fim_hora_da_chuva:
-                text = (f'com a chuva prevista que começou às {str_hora_inicio}, tendo a maior intensidade acontecido '
-                        f'às {str_hora_maxima} com {milimitros_acumulados} e o fim às {str_hora_fim}')
+            if agora > inicio_hora_da_chuva:
+                if agora > maximo_hora_da_chuva:
+                    if agora > fim_hora_da_chuva:
+                        text = (
+                            f'com a chuva prevista que começou às {str_hora_inicio}h, tendo a maior intensidade '
+                            f'acontecido às {str_hora_maxima}h com {milimitros_acumulados} e o fim às {str_hora_fim}h')
+                    else:
+                        text = (
+                            f'com a chuva prevista que começou às {str_hora_inicio}h, tendo a maior intensidade '
+                            f'acontecido às {str_hora_maxima}h com {milimitros_acumulados} mm e fim previsto para às '
+                            f'{str_hora_fim}h')
+                else:
+                    text = (f'com a chuva prevista que começou às {str_hora_inicio}h, tendo a maior intensidade às '
+                            f'{str_hora_maxima}h com {milimitros_acumulados} mm e fim previsto para às {str_hora_fim}h')
             else:
-                text = (f'com a chuva prevista para começar às {str_hora_inicio}, tendo a maior intensidade às '
-                        f'{str_hora_maxima} com {milimitros_acumulados} mm e fim previsto para às {str_hora_fim}')
+                text = (f'com a chuva prevista para começar às {str_hora_inicio}h, tendo a maior intensidade às '
+                        f'{str_hora_maxima}h com {milimitros_acumulados} mm e fim previsto para às {str_hora_fim}h')
 
     return text
 
@@ -125,7 +129,7 @@ def condicao_atual() -> str:
 
 
 def temperatura_minima():
-    text = f'{round(data["forecast"]["forecastday"][0]["day"]["mintemp_c"])}'
+    text = f'{round(data["forecast"]["forecastday"][1]["day"]["mintemp_c"])}'
     return text
 
 
