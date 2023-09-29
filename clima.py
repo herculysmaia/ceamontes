@@ -2,7 +2,6 @@ from datetime import datetime as dt, timedelta
 
 import requests
 import json
-import os
 
 
 def abrir_dados():
@@ -46,19 +45,22 @@ def abrir_dados():
 
 
 def obter_chance_de_chuva():
-    agora = (dt.now() + timedelta(minutes=15)).timestamp()
+    agora = (dt.now() + timedelta(minutes=15))
     milimitros_acumulados = 0
-    inicio_hora_da_chuva = 2000000000
+    inicio_hora_da_chuva = agora + timedelta(days=7)
     maximo_hora_da_chuva = 0
     fim_hora_da_chuva = 0
 
-    lista_dado = data['forecast']['forecastday'][0]['hour']
+    hora = data['hourly']['time'][24:49]
+    chuva = data['hourly']['rain'][24:49]
     text = 'sem previsão de chuva'
 
-    for info in lista_dado:
-        if info['precip_mm'] != 0:
-            hora_da_chuva = info['time_epoch']
-            milimetros = info['precip_mm']
+    for item_hora, item_chuva in zip(hora, chuva):
+        if item_chuva != 0:
+            hora_da_chuva = dt.strptime(item_hora, "%Y-%m-%dT%H:%M")
+            milimetros = item_chuva
+
+            print(hora_da_chuva, inicio_hora_da_chuva, maximo_hora_da_chuva, fim_hora_da_chuva)
 
             if hora_da_chuva < inicio_hora_da_chuva:
                 inicio_hora_da_chuva = hora_da_chuva
@@ -74,9 +76,9 @@ def obter_chance_de_chuva():
             if hora_da_chuva > fim_hora_da_chuva:
                 fim_hora_da_chuva = hora_da_chuva
 
-            str_hora_inicio = dt.fromtimestamp(inicio_hora_da_chuva).strftime('%H')
-            str_hora_maxima = dt.fromtimestamp(maximo_hora_da_chuva).strftime('%H')
-            str_hora_fim = dt.fromtimestamp(fim_hora_da_chuva).strftime('%H')
+            str_hora_inicio = inicio_hora_da_chuva.strftime('%H')
+            str_hora_maxima = maximo_hora_da_chuva.strftime('%H')
+            str_hora_fim = fim_hora_da_chuva.strftime('%H')
 
             if agora > inicio_hora_da_chuva:
                 if agora > maximo_hora_da_chuva:
@@ -100,14 +102,13 @@ def obter_chance_de_chuva():
 
 
 def condicao_noite():
-    hora_da_previsao = 20
+    hora_da_previsao = 44
 
-    descricao = data['forecast']['forecastday'][0]['hour'][hora_da_previsao]['condition']['text']
-    figura = emoji[data['forecast']['forecastday'][0]['hour'][hora_da_previsao]['condition']['code']]
-    cobertura = data['forecast']['forecastday'][0]['hour'][hora_da_previsao]['cloud']
-    temperatura = round(data['forecast']['forecastday'][0]['hour'][hora_da_previsao]['temp_c'])
-    chance_de_chuva = data['forecast']['forecastday'][0]['hour'][hora_da_previsao]['chance_of_rain']
-    milimetros_de_chuva = data['forecast']['forecastday'][0]['hour'][hora_da_previsao]['precip_mm']
+    descricao = dict_descricao[data['hourly']['weathercode'][hora_da_previsao]]
+    cobertura = data['hourly']['cloudcover'][hora_da_previsao]
+    temperatura = data['hourly']['temperature_80m'][hora_da_previsao]
+    chance_de_chuva = data['hourly']['precipitation_probability'][hora_da_previsao]
+    milimetros_de_chuva = data['hourly']['rain'][hora_da_previsao]
 
     if chance_de_chuva == 0:
         chuva = 'sem chance de chuva'
@@ -117,52 +118,48 @@ def condicao_noite():
         else:
             chuva = f'{chance_de_chuva}% de chance de chover {milimetros_de_chuva} mm'
 
-    text = f'{descricao} {figura}, com {cobertura}% do céu coberto e temperatura de {temperatura}°C, {chuva}'
+    text = f'{descricao}, com {cobertura}% do céu coberto e temperatura de {temperatura}°C, {chuva}'
     return text
 
 
 def condicao_atual() -> str:
-    descricao = data['current']['condition']['text']
-    figura = emoji[data['current']['condition']['code']]
-    text = f'{descricao} {figura}'
-    return text
+    descricao = dict_descricao[data['current_weather']['weathercode']]
+    return descricao
 
 
 def temperatura_minima():
-    text = f'{round(data["forecast"]["forecastday"][1]["day"]["mintemp_c"])}'
-    return text
+    temperatura = data['daily']['temperature_2m_min'][2]
+    return temperatura
 
 
 def temperatura_maxima():
-    text = f'{round(data["forecast"]["forecastday"][0]["day"]["maxtemp_c"])}'
-    return text
+    temperatura = data['daily']['temperature_2m_max'][1]
+    return temperatura
 
 
 def temperatura_atual():
-    text = f'{round(data["current"]["temp_c"])}'
-    return text
+    temperatura = data['current_weather']['temperature']
+    return temperatura
 
 
 def umidade_atual():
-    text = f'{data["current"]["humidity"]}'
-    return text
+    umidade = data['hourly']['relativehumidity_2m'][42]
+    return umidade
 
 
 def visibilidade_atual():
-    text = f'{data["current"]["cloud"]}'
-    return text
+    cobertura = data['hourly']['cloudcover'][42]
+    return cobertura
 
 
-lat = -16.715767
-lon = -43.863275
+lat = 40.761389
+lon = -73.997843
 
-key = os.getenv("API_KEY")
 
-if key is None:
-    with open('key.txt', 'r') as arq:
-        key = arq.read()
-
-url = f'https://api.weatherapi.com/v1/forecast.json?key={key}&q={lat},{lon}&lang=pt&days=2&aqi=no&alerts=yes'
+url = (f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m,"
+       f"relativehumidity_2m,precipitation_probability,rain,weathercode,cloudcover,temperature_80m&daily=weathercode,"
+       f"temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_hours,"
+       f"precipitation_probability_max&current_weather=true&timezone=America%2FSao_Paulo&past_days=1&forecast_days=3")
 
 response = requests.get(url)
 
@@ -171,52 +168,33 @@ if response.status_code == 200:
 else:
     data = abrir_dados()
 
-emoji = {
-    1000: "☀️",
-    1003: "⛅",
-    1006: "☁️",
-    1009: "☁️",
-    1030: "🌫️",
-    1063: "🌦️",
-    1066: "🌨️",
-    1069: "🌨️❄️",
-    1072: "🌧️❄️",
-    1087: "⛈️",
-    1114: "🌬️🌨️",
-    1117: "❄️🌬️",
-    1135: "🌁",
-    1147: "🌁❄️",
-    1150: "🌦️🌧️",
-    1153: "🌧️",
-    1168: "🌧️❄️",
-    1171: "🌧️❄️",
-    1180: "🌦️🌧️",
-    1183: "🌧️",
-    1186: "🌧️",
-    1189: "🌧️",
-    1192: "🌧️☔",
-    1195: "🌧️☔",
-    1198: "🌧️❄️",
-    1201: "🌧️❄️",
-    1204: "🌨️❄️",
-    1207: "🌨️❄️",
-    1210: "🌨️",
-    1213: "🌨️❄️",
-    1216: "🌨️❄️",
-    1219: "🌨️❄️",
-    1222: "🌨️❄️",
-    1225: "🌨️❄️",
-    1237: "🌧️❄️",
-    1240: "🌧️☔",
-    1243: "🌧️☔",
-    1246: "🌧️☔",
-    1249: "🌨️❄️",
-    1252: "🌨️❄️",
-    1255: "🌨️❄️",
-    1258: "🌨️❄️",
-    1261: "🌧️❄️",
-    1264: "🌧️❄️",
-    1273: "🌩️🌧️",
-    1276: "🌩️🌧️",
-    1282: "🌩️🌨️❄️"
+dict_descricao = {
+    0: "☀️ céu limpo",
+    1: "🌤 principalmente claro",
+    2: "⛅️ parcialmente nublado",
+    3: "☁️ nublado",
+    45: "🌫️ neblina",
+    48: "🌁 névoa",
+    51: "💦 garoa leve",
+    53: "☔ garoa moderada",
+    55: "🌦️ garoa densa",
+    56: "🌦️ garoa congelante leve",
+    57: "🌧️ garoa congelante densa",
+    61: "🌦️ chuva leve",
+    63: "🌧️ chuva moderada",
+    65: "⛈️ chuva forte",
+    66: "🌧️ chuva congelante leve",
+    67: "🌨️ chuva congelante intensa",
+    71: "🌨️ queda de neve leve",
+    73: "🌨️ queda de neve moderada",
+    75:	"🌨️ queda de neve intensa",
+    77: "❄️ Nevasca",
+    80: "☔ pancadas de chuva leve",
+    81: "🌦️ pancadas de chuva moderada",
+    82: "🌧️ pancadas de chuva violentas",
+    85: "🌨️ neve leve",
+    86: "❄️ neve pesada",
+    95: "🌩️ trovoada ligeira",
+    96: "⛈️ trovoada com granizo leve",
+    99: "⛈️ trovoada com granizo intensa",
 }
