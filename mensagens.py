@@ -99,5 +99,24 @@ class Mensagens:
 
         return {'mensagem': texto_mensagem}
 
+    @staticmethod
+    def eclipse():
+        astronomia = efemerides.Eclipse()
+
+        horario_nascimento, horario_por, fase_da_lua, graus_do_sol = astronomia.obter_horario_da_lua()
+        dias_para_eclipse = astronomia.obter_dias_para_eclipse()
+
+        condicao_do_clima_montes_claros = clima.obter_condicoes_eclipse()
+
+        texto_mensagem = (
+            f'Boa tarde!\n*Faltam {dias_para_eclipse} dias para o eclipse solar anular!*.\n\nHoje a lua nasce '
+            f'às {horario_nascimento} e se põe às {horario_por}, encontrando-se na fase {fase_da_lua}, ela está '
+            f'{graus_do_sol:.1f}° afastada do Sol.\n\nA previsão para Montes Claros no dia do eclipse é de '
+            f'{condicao_do_clima_montes_claros}.\n\n*Prepare-se para a observação!*\n\n*OBS.: NUNCA OLHE DIRETAMENTE '
+            f'PARA O SOL SEM PROTEÇÃO ADEQUADA.*'
+        )
+
+        return {'mensagem': texto_mensagem}
+
 
 gerenciador_mensagens = Mensagens()
