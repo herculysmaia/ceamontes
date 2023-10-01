@@ -1,47 +1,6 @@
 from datetime import datetime as dt, timedelta
 
 import requests
-import json
-
-
-def abrir_dados():
-    resposta_padrao = {
-        "list": [{
-            "dt": 0,
-            "main": {
-                "temp": 0,
-                "temp_min": 0,
-                "temp_max": 0,
-                "humidity": 0,
-            },
-            "rain": {
-                "1h": 0,
-            },
-            "weather": [{
-                "description": "INDETERMINADO",
-                "icon": "01n"
-            }],
-            "clouds": {
-                "all": 0
-            },
-            "sys": {
-                "pod": "n"},
-            "city": {
-                "sunrise": 0,
-                "sunset": 0
-            }
-        }]
-    }
-
-    try:
-        with open('dados.json', 'r') as ops:
-            config = json.load(ops)
-    except (ValueError, FileNotFoundError):
-        with open('dados.json', 'w') as ops:
-            json.dump(resposta_padrao, ops)
-        return resposta_padrao
-
-    return config
 
 
 def obter_chance_de_chuva():
@@ -152,10 +111,9 @@ def visibilidade_atual():
 
 def obter_condicoes_eclipse():
 
-    url_14_10 = ('https://api.open-meteo.com/v1/forecast?latitude=-16.715768&longitude=-43.863273&'
-                 'hourly=temperature_2m,precipitation_probability,rain,weathercode,cloudcover,cloudcover_low,'
-                 'cloudcover_mid,cloudcover_high,visibility,uv_index&timezone=America%2FSao_Paulo&'
-                 'start_date=2023-10-14&end_date=2023-10-14')
+    url_14_10 = (f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&'
+                 'hourly=temperature_2m,precipitation_probability,precipitation,weathercode,cloudcover&'
+                 'timezone=America%2FSao_Paulo&start_date=2023-10-14&end_date=2023-10-14')
 
     reposta_previsao = requests.get(url_14_10)
 
@@ -171,28 +129,30 @@ def obter_condicoes_eclipse():
         condicao = dict_descricao[previsao['hourly']['weathercode'][indice_hora]]
         temperatura = previsao['hourly']['temperature_2m'][indice_hora]
         cobertura = previsao['hourly']['cloudcover'][indice_hora]
-        chuva = previsao['hourly']['rain'][indice_hora+1]
+        chuva = previsao['hourly']['precipitation'][indice_hora+1]
 
-        texto_cobertura = f"com {cobertura}% do céu coberto"
+        texto_cobertura = f" e {cobertura}% do céu coberto por nuvens"
 
         if cobertura == 0:
-            texto_cobertura = 'sem nuvens'
+            texto_cobertura = ''
 
-        precicipitacao = previsao['hourly']['precipitation_probability'][indice_hora]
+        probabilidade_precicipitacao = previsao['hourly']['precipitation_probability'][indice_hora]
 
-        texto_chuva = 'sem chance de chuva'
+        texto_chuva = 'Chance de chuva ainda indeterminda'
 
-        if precicipitacao is not None and precicipitacao > 0:
-            texto_chuva = f'com {precicipitacao}% de chance de chover {chuva} mm no horário'
+        if probabilidade_precicipitacao is not None:
+            if probabilidade_precicipitacao > 0:
+                texto_chuva = f'Há {probabilidade_precicipitacao}% de chance de chover {chuva} mm'
+            else:
+                texto_chuva = 'Sem chance de chuva'
 
-        texto = f'{condicao}, fazendo {temperatura:.0f}°C, {texto_cobertura} e {texto_chuva}'
+        texto = f'{condicao}, com {temperatura:.0f}°C{texto_cobertura}. {texto_chuva}'
 
     return texto
 
 
 lat = -16.715767
 lon = -43.863275
-
 
 url = (f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m,"
        f"relativehumidity_2m,precipitation_probability,rain,weathercode,cloudcover,temperature_80m&daily=weathercode,"
@@ -203,8 +163,6 @@ response = requests.get(url)
 
 if response.status_code == 200:
     data = response.json()
-else:
-    data = abrir_dados()
 
 dict_descricao = {
     0: "☀️ céu limpo",
@@ -213,9 +171,9 @@ dict_descricao = {
     3: "☁️ nublado",
     45: "🌫️ neblina",
     48: "🌁 névoa",
-    51: "💦 garoa leve",
-    53: "☔ garoa moderada",
-    55: "🌦️ garoa densa",
+    51: "☔ garoa leve",
+    53: "🌦️ garoa moderada",
+    55: "🌧️ garoa densa",
     56: "🌦️ garoa congelante leve",
     57: "🌧️ garoa congelante densa",
     61: "🌦️ chuva leve",
@@ -227,9 +185,9 @@ dict_descricao = {
     73: "🌨️ queda de neve moderada",
     75:	"🌨️ queda de neve intensa",
     77: "❄️ Nevasca",
-    80: "☔ pancadas de chuva leve",
-    81: "🌦️ pancadas de chuva moderada",
-    82: "🌧️ pancadas de chuva violentas",
+    80: "🌧️ pancadas de chuva leve",
+    81: "🌩️ pancadas de chuva moderada",
+    82: "⛈️ pancadas de chuva violentas",
     85: "🌨️ neve leve",
     86: "❄️ neve pesada",
     95: "🌩️ trovoada ligeira",
