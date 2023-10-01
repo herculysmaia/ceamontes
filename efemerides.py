@@ -316,6 +316,14 @@ class Eclipse:
 
         return distancia_angular.degrees
 
+    @staticmethod
+    def obter_dias_para_eclipse():
+        data_do_eclipse = dt(year=2023, month=10, day=14, hour=19, minute=46, tzinfo=api.utc)
+
+        diferenca_de_dias = data_do_eclipse - HOJE
+
+        return diferenca_de_dias.days
+
     def obter_horario_da_lua(self):
         um_dia_depois = HOJE + timedelta(days=1)
 
@@ -339,15 +347,3 @@ class Eclipse:
         separacao = self._obter_serparacao(t0)
 
         return horario_nascimento, horario_por, texto, separacao
-
-    def obter_dias_para_eclipse(self):
-        data_do_eclipse = dt(year=2023, month=10, day=14, hour=15, minute=3, second=50, tzinfo=api.utc)
-
-        diferenca_de_dias = data_do_eclipse - HOJE
-
-        return diferenca_de_dias.days
-
-
-
-if __name__ == '__main__':
-    Evento().obter_lista_de_eventos()
