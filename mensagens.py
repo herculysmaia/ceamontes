@@ -111,9 +111,9 @@ class Mensagens:
         texto_mensagem = (
             f'⌛️ *Faltam {dias_para_eclipse} dias para o eclipse anular do Sol! 🔅*\n\nHoje a Lua nasce '
             f'às {horario_nascimento} e se põe às {horario_por}, encontrando-se na fase {fase_da_lua}. Ela está '
-            f'{graus_do_sol:.1f}° afastada do Sol.\n\nA previsão até o momento para Montes Claros no dia do eclipse é '
-            f'de {condicao_do_clima_montes_claros}.\n\n🔭 *Prepare-se para a observação!*\n\n⚠️ *OBS.: NUNCA OLHE '
-            f'DIRETAMENTE PARA O SOL SEM PROTEÇÃO ADEQUADA.*'
+            f'{graus_do_sol:.1f}° afastada do Sol.\n\nA previsão do clima até o momento para Montes Claros no dia 14 '
+            f'de outubro, às 16:48, momento máximo do eclipse, é de {condicao_do_clima_montes_claros}.\n\n🔭 *'
+            f'Prepare-se para a observação!*\n\n⚠️ *OBS.: NUNCA OLHE DIRETAMENTE PARA O SOL SEM PROTEÇÃO ADEQUADA.*'
         )
 
         return {'mensagem': texto_mensagem}
