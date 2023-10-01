@@ -109,11 +109,11 @@ class Mensagens:
         condicao_do_clima_montes_claros = clima.obter_condicoes_eclipse()
 
         texto_mensagem = (
-            f'Boa tarde!\n*Faltam {dias_para_eclipse} dias para o eclipse solar anular!*.\n\nHoje a lua nasce '
-            f'às {horario_nascimento} e se põe às {horario_por}, encontrando-se na fase {fase_da_lua}, ela está '
-            f'{graus_do_sol:.1f}° afastada do Sol.\n\nA previsão para Montes Claros no dia do eclipse é de '
-            f'{condicao_do_clima_montes_claros}.\n\n*Prepare-se para a observação!*\n\n*OBS.: NUNCA OLHE DIRETAMENTE '
-            f'PARA O SOL SEM PROTEÇÃO ADEQUADA.*'
+            f'⌛️ *Faltam {dias_para_eclipse} dias para o eclipse anular do Sol! 🔅*\n\nHoje a Lua nasce '
+            f'às {horario_nascimento} e se põe às {horario_por}, encontrando-se na fase {fase_da_lua}. Ela está '
+            f'{graus_do_sol:.1f}° afastada do Sol.\n\nA previsão até o momento para Montes Claros no dia do eclipse é '
+            f'de {condicao_do_clima_montes_claros}.\n\n🔭 *Prepare-se para a observação!*\n\n⚠️ *OBS.: NUNCA OLHE '
+            f'DIRETAMENTE PARA O SOL SEM PROTEÇÃO ADEQUADA.*'
         )
 
         return {'mensagem': texto_mensagem}
