@@ -31,5 +31,12 @@ def lista_de_eventos():
     return jsonify(mensagem)
 
 
+@app.route('/eclipse')
+def mensagem_eclipse():
+    mensagem = gerenciador_mensagens.eclipse()
+
+    return jsonify(mensagem)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
